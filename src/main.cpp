@@ -1,3 +1,4 @@
+#include "core/program.h"
 #include <GL/glew.h>    // GLEW (tem que vir ANTES do glfw3.h)
 #include <GL/glu.h>     // GLU (para gluPerspective e gluLookAt)
 #include <GLFW/glfw3.h> // GLFW
@@ -36,37 +37,19 @@ void setup_camera_and_projection(int width, int height) {
 }
 
 int main(void) {
-    GLFWwindow* window;
+    Program program;
+    
+    program.Init("Boids");
+    program.PrintStats();
 
-    // 1. Inicializar o GLFW
-    if (!glfwInit()) {
-        fputs("Falha ao inicializar GLFW\n", stderr);
-        return -1;
-    }
+    program.RunLoop();
 
-    // 2. Criar a Janela (Modo de compatibilidade, sem hints)
-    window = glfwCreateWindow(1024, 768, "Boids", NULL, NULL);
-    if (!window) {
-        fputs("Falha ao criar janela GLFW\n", stderr);
-        glfwTerminate();
-        return -1;
-    }
+    program.Shutdown();
 
-    // 4. Tornar o contexto da janela o contexto principal
-    glfwMakeContextCurrent(window);
+    return 0;
 
-    // 5. Inicializar o GLEW
-    glewExperimental = GL_TRUE;
-    if (glewInit() != GLEW_OK) {
-        fputs("Falha ao inicializar GLEW\n", stderr);
-        glfwTerminate();
-        return -1;
-    }
-
-    printf("OpenGL Versão: %s\n", glGetString(GL_VERSION));
-
-    // --- Configuração Inicial do OpenGL ---
-    glEnable(GL_DEPTH_TEST); // Ligar o Z-buffer (essencial para 3D)
+    /*
+    glEnable(GL_DEPTH_TEST); 
     glDepthFunc(GL_LESS);
     glClearColor(0.0f, 0.0f, 0.2f, 1.0f); // Fundo azul escuro
 
@@ -96,9 +79,5 @@ int main(void) {
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-
-    // 8. Limpeza Final
-    glfwDestroyWindow(window);
-    glfwTerminate();
-    return 0;
+    */
 }
