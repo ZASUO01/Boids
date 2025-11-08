@@ -20,5 +20,10 @@ public:
     static const int WINDOW_HEIGHT = 768;
 private:
     bool isRunning;    
+    double lastFrameTime;
     GLFWwindow* window;
+
+    void Input();
+    void Update();
+    void Render();
 };

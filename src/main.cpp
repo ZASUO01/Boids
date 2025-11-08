@@ -47,37 +47,4 @@ int main(void) {
     program.Shutdown();
 
     return 0;
-
-    /*
-    glEnable(GL_DEPTH_TEST); 
-    glDepthFunc(GL_LESS);
-    glClearColor(0.0f, 0.0f, 0.2f, 1.0f); // Fundo azul escuro
-
-    // 7. O Loop Principal (Game Loop)
-    while (!glfwWindowShouldClose(window)) {
-        // Obter o tamanho da janela (para o aspect ratio)
-        int width, height;
-        glfwGetFramebufferSize(window, &width, &height);
-
-        // Define o viewport para a janela inteira
-        glViewport(0, 0, width, height);
-
-        // --- Limpeza ---
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        // --- Configurar Câmera ---
-        setup_camera_and_projection(width, height);
-
-        // --- Lógica (ainda nada) ---
-        // update_simulation();
-
-        // --- Renderização (Item 1) ---
-        draw_ground(100.0f, 0.0f); // Desenha um chão de 100x100 na altura Y=0
-        draw_tower(5.0f, 15.0f, 20, 0.0f); // Torre: 5 raio, 15 altura, 20 fatias, na altura Y=0
-
-        // --- Troca de Buffers e Eventos ---
-        glfwSwapBuffers(window);
-        glfwPollEvents();
-    }
-    */
 }
