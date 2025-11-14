@@ -11,6 +11,7 @@
 #include "objects/ground.h"
 #include "objects/object.h"
 #include "objects/tower.h"
+#include "objects/boid.h"
 #include "utils/logger.h"
 
 #define MAX_TITLE_LENGTH 256

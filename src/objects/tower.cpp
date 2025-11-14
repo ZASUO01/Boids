@@ -7,7 +7,7 @@
 #endif
 
 Tower::Tower(Vec3 pos) : Object(pos) {
-    speed = 0.0f;
+    m_speed = 0.0f;
 }
 
 void Tower::draw() const {

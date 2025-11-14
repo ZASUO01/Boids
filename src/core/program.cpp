@@ -6,6 +6,7 @@ Program::Program()
       m_lastFPSTime(0.0),
       m_frameCount(0),
       m_window(nullptr) {}
+
 void Program::InitWindow(const char *name) {
     if (!glfwInit()) {
         Logger::logExit("glfw init failure");
@@ -189,41 +190,18 @@ void Program::ProcessKey(int key, int action) {
 
     case GLFW_KEY_EQUAL:
     case GLFW_KEY_KP_ADD: {
+        float randX = random_float(-50.0f, 50.0f);
+        float randY = random_float(-50.0f, 50.0f);
+        
+        Vec3 pos = vec3_create(randX, randY, 5.0f); 
 
-        float randX = random_float(-20.0f, 20.0f);
-        float randY = random_float(-20.0f, 20.0f);
-        float randScale = random_float(0.5f, 2.0f);
-        Vec3 pos = vec3_create(randX, randY, 0.5f);
-
-        Vec3 axis = vec3_create(
-            random_float(-1.0f, 1.0f),
-            random_float(-1.0f, 1.0f),
-            random_float(-1.0f, 1.0f));
-        axis = vec3_normalize(axis);
-
-        float speed = random_float(20.0f, 120.0f);
-
-        auto newCube = std::make_unique<Cube>(pos);
-        newCube->setRotationAxis(axis);
-        newCube->setRotationSpeed(speed);
-        newCube->setScale(randScale);
-
-        m_objects.push_back(std::move(newCube));
+        auto boid = std::make_unique<Boid>(pos);
+        m_objects.push_back(std::move(boid));
         break;
     }
 
     case GLFW_KEY_MINUS:
     case GLFW_KEY_KP_SUBTRACT: {
-
-        for (auto it = m_objects.rbegin(); it != m_objects.rend(); ++it) {
-
-            Cube *cube_ptr = dynamic_cast<Cube *>(it->get());
-
-            if (cube_ptr != nullptr) {
-                m_objects.erase(std::next(it).base());
-                break;
-            }
-        }
         break;
     }
     default:

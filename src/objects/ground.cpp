@@ -1,7 +1,7 @@
 #include "objects/ground.h"
 
 Ground::Ground(Vec3 pos) : Object(pos) {
-    speed = 0.0f;
+    m_speed = 0.0f;
 }
 
 void Ground::draw() const {
