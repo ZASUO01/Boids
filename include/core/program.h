@@ -4,8 +4,8 @@
 #include <GLFW/glfw3.h>
 #include <cstdio>
 #include <memory>
-#include <vector>
 #include <random>
+#include <vector>
 
 #include "objects/cube.h"
 #include "objects/ground.h"
@@ -29,12 +29,18 @@ public:
     static const int WINDOW_HEIGHT = 768;
 
 private:
-    bool isRunning;
-    double lastFrameTime;
-    double m_lastFPSTime;  // Armazena o tempo da última atualização de FPS
+    bool m_isRunning;
+    double m_lastFrameTime;
+    double m_lastFPSTime;
     int m_frameCount;
-    GLFWwindow *window;
+    GLFWwindow *m_window;
     std::vector<std::unique_ptr<Object>> m_objects;
+
+    void InitWindow(const char *name);
+    void InitOpenGL();
+    void InitInput();
+    void SetupScene();
+    void InitTimers();
 
     void Input();
     void Update();

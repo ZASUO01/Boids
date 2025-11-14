@@ -1,50 +1,79 @@
 #include "core/program.h"
 
 Program::Program()
-    : isRunning(true),
-      lastFrameTime(0),
+    : m_isRunning(true),
+      m_lastFrameTime(0),
       m_lastFPSTime(0.0),
       m_frameCount(0),
-      window(nullptr) {}
-
-void Program::Init(const char *name) {
+      m_window(nullptr) {}
+void Program::InitWindow(const char *name) {
     if (!glfwInit()) {
         Logger::logExit("glfw init failure");
     }
 
-    window = glfwCreateWindow(Program::WINDOW_WIDTH, Program::WINDOW_HEIGHT, name, NULL, NULL);
-    if (!window) {
+    m_window = glfwCreateWindow(Program::WINDOW_WIDTH, Program::WINDOW_HEIGHT, name, NULL, NULL);
+    if (!m_window) {
         glfwTerminate();
         Logger::logExit("glfw create window failure");
     }
 
-    glfwMakeContextCurrent(window);
-    glViewport(0, 0, Program::WINDOW_WIDTH, Program::WINDOW_HEIGHT);
+    glfwMakeContextCurrent(m_window);
+}
+
+void Program::InitOpenGL() {
+    glewExperimental = GL_TRUE;
+    if (glewInit() != GLEW_OK) {
+        Logger::logExit("Failed to initialize GLEW");
+    }
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
-
     glClearColor(0.0f, 0.0f, 0.2f, 1.0f);
+}
 
-    m_objects.push_back(
-        std::make_unique<Ground>(vec3_create(0, 0, 0)) // Posição na origem
-    );
+void Program::InitInput() {
+    glfwSetWindowUserPointer(m_window, this);
+    glfwSetKeyCallback(m_window, KeyCallback);
+    glfwSetMouseButtonCallback(m_window, MouseButtonCallback);
+}
 
-    m_objects.push_back(
-        std::make_unique<Tower>(vec3_create(0, 0, 0)) // Posição na origem
-    );
+void Program::SetupScene() {
+    m_objects.push_back(std::make_unique<Ground>(vec3_create(0.0f, 0.0f, 0.0f)));
+    m_objects.push_back(std::make_unique<Tower>(vec3_create(0.0f, 0.0f, 1.0f)));
 
-    auto testCube1 = std::make_unique<Cube>(vec3_create(5, 5, 0.5));
-    testCube1->setRotationAxis(vec3_create(0.0f, 0.0f, 1.0f));
-    testCube1->setRotationSpeed(45.0f);
-    m_objects.push_back(std::move(testCube1));
+    const float scale = 7.0f;
+    const float cubeY = -30.0f;
+    const Vec3 rotAxis = vec3_create(0.0f, 0.0f, 1.0f);
 
-    lastFrameTime = glfwGetTime();
-    m_lastFPSTime = lastFrameTime;
+    std::vector<float> speeds = {45.0f, -60.0f, 30.0f};
+
+    for (size_t i = 0; i < speeds.size(); ++i) {
+        float zPos = (0.5f * scale) + ((float)i * scale);
+        Vec3 pos = vec3_create(0.0f, cubeY, zPos);
+
+        auto cube = std::make_unique<Cube>(pos);
+        cube->setRotationAxis(rotAxis);
+        cube->setRotationSpeed(speeds[i]);
+        cube->setScale(scale);
+        m_objects.push_back(std::move(cube));
+    }
+}
+
+void Program::InitTimers() {
+    m_lastFrameTime = glfwGetTime();
+    m_lastFPSTime = m_lastFrameTime;
+}
+
+void Program::Init(const char *name) {
+    InitWindow(name);
+    InitOpenGL();
+    InitInput();
+    SetupScene();
+    InitTimers();
 }
 
 void Program::RunLoop() {
-    while (!glfwWindowShouldClose(window)) {
+    while (!glfwWindowShouldClose(m_window)) {
         glfwPollEvents();
         Input();
         Update();
@@ -53,10 +82,10 @@ void Program::RunLoop() {
 }
 
 void Program::Input() {
-    glfwSetWindowUserPointer(window, this);
+    glfwSetWindowUserPointer(m_window, this);
 
-    glfwSetKeyCallback(window, KeyCallback);
-    glfwSetMouseButtonCallback(window, MouseButtonCallback);
+    glfwSetKeyCallback(m_window, KeyCallback);
+    glfwSetMouseButtonCallback(m_window, MouseButtonCallback);
 }
 
 void Program::setNameWithFPS(double currentTime) {
@@ -64,9 +93,9 @@ void Program::setNameWithFPS(double currentTime) {
 
     if (currentTime - m_lastFPSTime >= FPS_UPDATE_INTERVAL) {
         char title[MAX_TITLE_LENGTH];
-        
+
         snprintf(title, MAX_TITLE_LENGTH, "Boids | FPS: %d", m_frameCount);
-        glfwSetWindowTitle(window, title);
+        glfwSetWindowTitle(m_window, title);
 
         m_frameCount = 0;
         m_lastFPSTime = currentTime;
@@ -76,7 +105,7 @@ void Program::setNameWithFPS(double currentTime) {
 void Program::Update() {
 
     double currentTime = glfwGetTime();
-    float deltaTime = (float)(currentTime - lastFrameTime);
+    float deltaTime = (float)(currentTime - m_lastFrameTime);
 
     setNameWithFPS(currentTime);
 
@@ -84,17 +113,18 @@ void Program::Update() {
         obj->update(deltaTime);
     }
 
-    lastFrameTime = currentTime;
+    m_lastFrameTime = currentTime;
 }
 
 void Program::Render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     int width, height;
-    glfwGetFramebufferSize(window, &width, &height);
+    glfwGetFramebufferSize(m_window, &width, &height);
     if (width == 0 || height == 0)
         return;
 
+    glViewport(0, 0, width, height);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluPerspective(75.0f, (float)width / (float)height, 0.1f, 500.0f);
@@ -111,11 +141,11 @@ void Program::Render() {
         obj->render();
     }
 
-    glfwSwapBuffers(window);
+    glfwSwapBuffers(m_window);
 }
 
 void Program::Shutdown() {
-    glfwDestroyWindow(window);
+    glfwDestroyWindow(m_window);
     glfwTerminate();
 }
 
@@ -154,7 +184,7 @@ void Program::ProcessKey(int key, int action) {
 
     switch (key) {
     case GLFW_KEY_ESCAPE:
-        glfwSetWindowShouldClose(window, GLFW_TRUE);
+        glfwSetWindowShouldClose(m_window, GLFW_TRUE);
         break;
 
     case GLFW_KEY_EQUAL:
@@ -162,6 +192,7 @@ void Program::ProcessKey(int key, int action) {
 
         float randX = random_float(-20.0f, 20.0f);
         float randY = random_float(-20.0f, 20.0f);
+        float randScale = random_float(0.5f, 2.0f);
         Vec3 pos = vec3_create(randX, randY, 0.5f);
 
         Vec3 axis = vec3_create(
@@ -175,6 +206,7 @@ void Program::ProcessKey(int key, int action) {
         auto newCube = std::make_unique<Cube>(pos);
         newCube->setRotationAxis(axis);
         newCube->setRotationSpeed(speed);
+        newCube->setScale(randScale);
 
         m_objects.push_back(std::move(newCube));
         break;

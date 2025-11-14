@@ -4,7 +4,7 @@
 
 class Tower : public Object {
 public:
-    Tower(Vec3 pos); 
+    Tower(Vec3 pos);
 
 protected:
     virtual void draw() const override;

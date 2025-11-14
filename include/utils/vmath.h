@@ -1,7 +1,7 @@
 #ifndef VMATH_H
 #define VMATH_H
 
-#include <math.h>       // Para sqrtf, fabsf
+#include <math.h> // Para sqrtf, fabsf
 
 // Definição da nossa estrutura de Vetor 3D
 typedef struct {

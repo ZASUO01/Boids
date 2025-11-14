@@ -4,5 +4,5 @@
 #include <cstdlib>
 
 namespace Logger {
-    void logExit(const char *msg);
+void logExit(const char *msg);
 }
