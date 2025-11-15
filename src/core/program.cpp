@@ -30,6 +30,19 @@ void Program::InitOpenGL() {
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     glClearColor(0.0f, 0.0f, 0.2f, 1.0f);
+
+    glEnable(GL_LIGHTING);
+    GLfloat global_ambient[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
+
+    glEnable(GL_COLOR_MATERIAL);
+    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+
+    glEnable(GL_NORMALIZE);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+    glClearColor(0.0f, 0.0f, 0.2f, 1.0f);
+
 }
 
 void Program::InitInput() {
@@ -132,6 +145,13 @@ void Program::Render() {
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+
+    GLfloat light_position[] = { 1.0f, 1.0f, 1.0f, 0.0f }; 
+    GLfloat light_diffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    
+    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
+    glEnable(GL_LIGHT0);
 
     gluLookAt(
         20.0f, 20.0f, 20.0f,

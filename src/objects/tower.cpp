@@ -13,7 +13,7 @@ Tower::Tower(Vec3 pos) : Object(pos) {
 void Tower::draw() const {
     float base_radius = 5.0f;
     float height = 15.0f;
-    int slices = 20;
+    int slices = 200;
     float z_pos = 0.0f;
 
     float angle_step = (2.0f * (float)M_PI) / (float)slices;

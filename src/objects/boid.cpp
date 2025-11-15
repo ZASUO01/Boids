@@ -9,8 +9,8 @@ Boid::Boid(Vec3 pos) : Object(pos),
                        m_bobbing_speed(3.0f),
                        m_bobbing_amplitude(0.2f) {
      
-    m_speed = 10.0f; 
-    m_scale = 0.5f; 
+    // m_speed = 10.0f; 
+    m_scale = 2.5f; 
 }
 
 void Boid::update(float delta_time) {
@@ -35,26 +35,27 @@ void Boid::update(float delta_time) {
 // Base no plano XY (centrada em 0,0), Ponta em +Z
 void Boid::drawUnitPyramid() const {
     glBegin(GL_TRIANGLES);
-        // Frente
-        glNormal3f(0.0f, 0.5f, 0.5f);
-        glVertex3f( 0.0f,  0.0f,  1.0f); // Topo
-        glVertex3f(-0.5f, -0.5f,  0.0f); // Base Esq
-        glVertex3f( 0.5f, -0.5f,  0.0f); // Base Dir
-
-        // Direita
-        glNormal3f(0.5f, 0.0f, 0.5f);
-        glVertex3f( 0.0f,  0.0f,  1.0f);
-        glVertex3f( 0.5f, -0.5f,  0.0f);
-        glVertex3f( 0.5f,  0.5f,  0.0f);
-
-        // Trás
-        glNormal3f(0.0f, -0.5f, 0.5f);
+        
+        // Frente (Face +Y)
+        glNormal3f(0.0f, 0.894f, 0.447f);
         glVertex3f( 0.0f,  0.0f,  1.0f);
         glVertex3f( 0.5f,  0.5f,  0.0f);
         glVertex3f(-0.5f,  0.5f,  0.0f);
 
-        // Esquerda
-        glNormal3f(-0.5f, 0.0f, 0.5f);
+        // Direita (Face +X)
+        glNormal3f(0.894f, 0.0f, 0.447f);
+        glVertex3f( 0.0f,  0.0f,  1.0f);
+        glVertex3f( 0.5f, -0.5f,  0.0f);
+        glVertex3f( 0.5f,  0.5f,  0.0f);
+
+        // Trás (Face -Y)
+        glNormal3f(0.0f, -0.894f, 0.447f);
+        glVertex3f( 0.0f,  0.0f,  1.0f);
+        glVertex3f(-0.5f, -0.5f,  0.0f);
+        glVertex3f( 0.5f, -0.5f,  0.0f);
+
+        // Esquerda (Face -X)
+        glNormal3f(-0.894f, 0.0f, 0.447f);
         glVertex3f( 0.0f,  0.0f,  1.0f);
         glVertex3f(-0.5f,  0.5f,  0.0f);
         glVertex3f(-0.5f, -0.5f,  0.0f);
