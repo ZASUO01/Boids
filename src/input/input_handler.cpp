@@ -64,19 +64,22 @@ void InputHandler::ProcessContinuousInput(GLFWwindow *window, float delta_time, 
         return;
     }
 
-    float turn_speed = 90.0f;
-    float accel_amount = 25.0f;
-
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        player->accelerate(accel_amount, delta_time);
+   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+        player->accelerate(1.0f, delta_time);
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        player->accelerate(-accel_amount, delta_time);
+        player->accelerate(-1.0f, delta_time);
     }
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        player->turn(turn_speed, delta_time);
+        player->turn(1.0f, delta_time);
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        player->turn(-turn_speed, delta_time);
+        player->turn(-1.0f, delta_time);
+    }
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+        player->pitch(1.0f, delta_time);
+    }
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+        player->pitch(-1.0f, delta_time);
     }
 }

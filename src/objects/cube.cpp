@@ -1,7 +1,14 @@
 #include "objects/cube.h"
 #include <GL/glew.h>
 
-// A função 'draw' DEVE desenhar o objeto na ORIGEM (0,0,0).
+void Cube::update(float delta_time) {
+    m_rotation_angle += m_rotation_speed * delta_time;
+    
+    if (m_rotation_angle > 360.0f) {
+        m_rotation_angle -= 360.0f;
+    }
+}
+
 void Cube::draw() const {
     glBegin(GL_QUADS);
 
