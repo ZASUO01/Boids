@@ -90,6 +90,10 @@ public:
         return m_up;
     }
 
+    Vec3 getVelocity() const {
+        return vec3_scale(m_forward, m_speed);
+    }
+
     void setRotationAxis(const Vec3 &axis) {
         m_local_rotation_axis = axis;
     }

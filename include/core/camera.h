@@ -7,15 +7,16 @@
 #include "utils/vmath.h"
 
 enum class Mode {
-    STATIC_WORLD,
-    FOLLOW_PLAYER
+    TOWER_TOP,    // Modo 1: No topo da torre
+    FOLLOW_PLAYER, // Modo 2: Atrás do bando
+    SIDE_PLAYER    // Modo 3: Perpendicular ao bando
 };
 
 class Camera {
 public:
     Camera();
 
-    void setFollowTarget(Object *target);
+    void setFollowTarget(Object* target);
 
     void toggleMode();
 
@@ -23,5 +24,5 @@ public:
 
 private:
     Mode m_mode;
-    Object *m_followTarget;
+    Object* m_followTarget;
 };

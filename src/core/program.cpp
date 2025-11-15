@@ -72,9 +72,9 @@ void Program::SetupScene() {
         m_objects.push_back(std::move(cube));
     }
 
-    auto player = std::make_unique<Boid>(vec3_create(0, 0, 5));
+    auto player = std::make_unique<Boid>(vec3_create(-10, -10, 5));
     m_playerBoid = player.get();
-    m_camera.setFollowTarget(player.get());
+    m_camera.setFollowTarget(m_playerBoid);
     m_objects.push_back(std::move(player));
 }
 
