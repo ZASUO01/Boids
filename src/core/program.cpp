@@ -1,11 +1,15 @@
 #include "core/program.h"
 
 Program::Program()
-    : m_isRunning(true),
-      m_lastFrameTime(0),
-      m_lastFPSTime(0.0),
+    : m_window(nullptr),
+      m_camera(),
+      m_inputHandler(),
+      m_objects(),
+      m_playerBoid(nullptr),
+      m_isRunning(true),
       m_frameCount(0),
-      m_window(nullptr) {}
+      m_lastFrameTime(0.0),
+      m_lastFPSTime(0.0) {}
 
 void Program::InitWindow(const char *name) {
     if (!glfwInit()) {
@@ -32,17 +36,13 @@ void Program::InitOpenGL() {
     glClearColor(0.0f, 0.0f, 0.2f, 1.0f);
 
     glEnable(GL_LIGHTING);
-    GLfloat global_ambient[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+    GLfloat global_ambient[] = {0.2f, 0.2f, 0.2f, 1.0f};
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
 
     glEnable(GL_COLOR_MATERIAL);
     glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 
     glEnable(GL_NORMALIZE);
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
-    glClearColor(0.0f, 0.0f, 0.2f, 1.0f);
-
 }
 
 void Program::InitInput() {
@@ -71,6 +71,11 @@ void Program::SetupScene() {
         cube->setScale(scale);
         m_objects.push_back(std::move(cube));
     }
+
+    auto player = std::make_unique<Boid>(vec3_create(0, 0, 5));
+    m_playerBoid = player.get();
+    m_camera.setFollowTarget(player.get());
+    m_objects.push_back(std::move(player));
 }
 
 void Program::InitTimers() {
@@ -89,7 +94,6 @@ void Program::Init(const char *name) {
 void Program::RunLoop() {
     while (!glfwWindowShouldClose(m_window)) {
         glfwPollEvents();
-        Input();
         Update();
         Render();
     }
@@ -122,6 +126,7 @@ void Program::Update() {
     float deltaTime = (float)(currentTime - m_lastFrameTime);
 
     setNameWithFPS(currentTime);
+    m_inputHandler.ProcessContinuousInput(m_window, deltaTime, m_playerBoid);
 
     for (const auto &obj : m_objects) {
         obj->update(deltaTime);
@@ -146,17 +151,14 @@ void Program::Render() {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-    GLfloat light_position[] = { 1.0f, 1.0f, 1.0f, 0.0f }; 
-    GLfloat light_diffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-    
+    m_camera.setupViewMatrix();
+
+    GLfloat light_position[] = {1.0f, 1.0f, 1.0f, 0.0f};
+    GLfloat light_diffuse[] = {1.0f, 1.0f, 1.0f, 1.0f};
+
     glLightfv(GL_LIGHT0, GL_POSITION, light_position);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
     glEnable(GL_LIGHT0);
-
-    gluLookAt(
-        20.0f, 20.0f, 20.0f,
-        0.0f, 0.0f, 5.0f,
-        0.0f, 0.0f, 1.0f);
 
     for (const auto &obj : m_objects) {
         obj->render();
@@ -180,51 +182,13 @@ void Program::KeyCallback(GLFWwindow *window, int key, int scancode, int action,
 
     Program *prog = static_cast<Program *>(glfwGetWindowUserPointer(window));
     if (prog) {
-        prog->ProcessKey(key, action);
+        prog->m_inputHandler.ProcessKey(prog, key, action);
     }
 }
 
 void Program::MouseButtonCallback(GLFWwindow *window, int button, int action, int mods) {
     Program *prog = static_cast<Program *>(glfwGetWindowUserPointer(window));
     if (prog) {
-        prog->ProcessKey(button, action);
-    }
-}
-
-static float random_float(float min, float max) {
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
-    std::uniform_real_distribution<float> dis(min, max);
-    return dis(gen);
-}
-
-void Program::ProcessKey(int key, int action) {
-    if (action != GLFW_PRESS && action != GLFW_REPEAT) {
-        return;
-    }
-
-    switch (key) {
-    case GLFW_KEY_ESCAPE:
-        glfwSetWindowShouldClose(m_window, GLFW_TRUE);
-        break;
-
-    case GLFW_KEY_EQUAL:
-    case GLFW_KEY_KP_ADD: {
-        float randX = random_float(-50.0f, 50.0f);
-        float randY = random_float(-50.0f, 50.0f);
-        
-        Vec3 pos = vec3_create(randX, randY, 5.0f); 
-
-        auto boid = std::make_unique<Boid>(pos);
-        m_objects.push_back(std::move(boid));
-        break;
-    }
-
-    case GLFW_KEY_MINUS:
-    case GLFW_KEY_KP_SUBTRACT: {
-        break;
-    }
-    default:
-        break;
+        prog->m_inputHandler.ProcessMouse(button, action);
     }
 }

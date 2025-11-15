@@ -52,9 +52,9 @@ public:
         // Create a 4x4 Template Matrix from our vectors
         // OpenGL expects matrices in "column-major order"
         GLfloat matrix[16] = {
-            m_right.x, m_right.y, m_right.z, 0.0f,           // Coluna 0 (Eixo X local = right)
-            m_forward.x, m_forward.y, m_forward.z, 0.0f,     // Coluna 1 (Eixo Y local = forward)
-            m_up.x, m_up.y, m_up.z, 0.0f,                    // Coluna 2 (Eixo Z local = up)
+            m_right.x, m_right.y, m_right.z, 0.0f,        // Coluna 0 (Eixo X local = right)
+            m_forward.x, m_forward.y, m_forward.z, 0.0f,  // Coluna 1 (Eixo Y local = forward)
+            m_up.x, m_up.y, m_up.z, 0.0f,                 // Coluna 2 (Eixo Z local = up)
             final_pos.x, final_pos.y, final_pos.z, 1.0f}; // Coluna 3 (Posição)
 
         // Apply this matrix
@@ -71,6 +71,45 @@ public:
         this->draw();
 
         glPopMatrix();
+    }
+
+    void accelerate(float amount, float delta_time) {
+        float max_speed = 50.0f;
+        m_speed += amount * delta_time;
+        if (m_speed > max_speed)
+            m_speed = max_speed;
+        if (m_speed < 0.0f)
+            m_speed = 0.0f; // Sem ré
+    }
+
+    void turn(float degrees, float delta_time) {
+        float rad = (degrees * delta_time) * ((float)M_PI / 180.0f);
+        float c = cos(rad);
+        float s = sin(rad);
+
+        // Rotaciona os vetores 'forward' e 'right' em torno do 'up' (eixo Z)
+        Vec3 old_forward = m_forward;
+        m_forward.x = old_forward.x * c - old_forward.y * s;
+        m_forward.y = old_forward.x * s + old_forward.y * c;
+
+        Vec3 old_right = m_right;
+        m_right.x = old_right.x * c - old_right.y * s;
+        m_right.y = old_right.x * s + old_right.y * c;
+
+        m_forward = vec3_normalize(m_forward);
+        m_right = vec3_normalize(m_right);
+    }
+
+    Vec3 getPosition() const {
+        return m_position;
+    }
+
+    Vec3 getForward() const {
+        return m_forward;
+    }
+
+    Vec3 getUp() const {
+        return m_up;
     }
 
     void setRotationAxis(const Vec3 &axis) {

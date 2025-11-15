@@ -7,15 +7,19 @@
 #include <random>
 #include <vector>
 
+#include "core/camera.h"
+#include "input/input_handler.h"
+#include "objects/boid.h"
 #include "objects/cube.h"
 #include "objects/ground.h"
 #include "objects/object.h"
 #include "objects/tower.h"
-#include "objects/boid.h"
 #include "utils/logger.h"
 
-#define MAX_TITLE_LENGTH 256
-#define FPS_UPDATE_INTERVAL 1.0
+enum class CameraMode {
+    STATIC_WORLD,
+    FOLLOW_PLAYER
+};
 
 class Program {
 public:
@@ -28,14 +32,20 @@ public:
 
     static const int WINDOW_WIDTH = 1024;
     static const int WINDOW_HEIGHT = 768;
+    static const int MAX_TITLE_LENGTH = 256;
+    static constexpr double FPS_UPDATE_INTERVAL = 1.0;
 
 private:
+    GLFWwindow *m_window;
+    Camera m_camera;
+    InputHandler m_inputHandler;
+    std::vector<std::unique_ptr<Object>> m_objects;
+
+    Object *m_playerBoid;
     bool m_isRunning;
+    int m_frameCount;
     double m_lastFrameTime;
     double m_lastFPSTime;
-    int m_frameCount;
-    GLFWwindow *m_window;
-    std::vector<std::unique_ptr<Object>> m_objects;
 
     void InitWindow(const char *name);
     void InitOpenGL();
@@ -49,7 +59,8 @@ private:
 
     static void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
     static void MouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
-    void ProcessKey(int key, int action);
 
     void setNameWithFPS(double currentTime);
+
+    friend class InputHandler;
 };
