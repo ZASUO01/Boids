@@ -9,7 +9,8 @@ Program::Program()
       m_isRunning(true),
       m_frameCount(0),
       m_lastFrameTime(0.0),
-      m_lastFPSTime(0.0) {}
+      m_lastFPSTime(0.0),
+      m_state(ProgramState::UPDATING) {}
 
 void Program::InitWindow(const char *name) {
     if (!glfwInit()) {
@@ -55,22 +56,7 @@ void Program::SetupScene() {
     m_objects.push_back(std::make_unique<Ground>(vec3_create(0.0f, 0.0f, 0.0f)));
     m_objects.push_back(std::make_unique<Tower>(vec3_create(0.0f, 0.0f, 0.0f)));
 
-    const float scale = 7.0f;
-    const float cubeY = -30.0f;
-    const Vec3 rotAxis = vec3_create(0.0f, 0.0f, 1.0f);
-
-    std::vector<float> speeds = {45.0f, -60.0f, 30.0f};
-
-    for (size_t i = 0; i < speeds.size(); ++i) {
-        float zPos = (0.5f * scale) + ((float)i * scale);
-        Vec3 pos = vec3_create(0.0f, cubeY, zPos);
-
-        auto cube = std::make_unique<Cube>(pos);
-        cube->setRotationAxis(rotAxis);
-        cube->setRotationSpeed(speeds[i]);
-        cube->setScale(scale);
-        m_objects.push_back(std::move(cube));
-    }
+    SpawnObstacles();
 
     auto player = std::make_unique<Boid>(vec3_create(-10, -10, 5));
     player->m_isPlayer = true;
@@ -129,12 +115,16 @@ void Program::Update() {
     float deltaTime = (float)(currentTime - m_lastFrameTime);
 
     setNameWithFPS(currentTime);
-    m_inputHandler.ProcessContinuousInput(m_window, deltaTime, m_playerBoid);
+    
 
-    for (const auto &obj : m_objects) {
-        obj->update(deltaTime, m_objects, m_playerBoid);
+    if(m_state != ProgramState::PAUSED){
+        m_inputHandler.ProcessContinuousInput(m_window, deltaTime, m_playerBoid);
+
+        for (const auto &obj : m_objects) {
+            obj->update(deltaTime, m_objects, m_playerBoid);
+        }
     }
-
+ 
     m_lastFrameTime = currentTime;
 }
 
@@ -193,5 +183,66 @@ void Program::MouseButtonCallback(GLFWwindow *window, int button, int action, in
     Program *prog = static_cast<Program *>(glfwGetWindowUserPointer(window));
     if (prog) {
         prog->m_inputHandler.ProcessMouse(button, action);
+    }
+}
+
+
+void Program::SpawnObstacles() {
+    DrawCircleWaves(20.0f, 4, 5.0f);    
+    DrawCircleWaves(50.0f, 8, 10.0f);
+    DrawCircleWaves(80.0f, 12, 15.0f);
+}
+
+static int random_int(int min, int max) {
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    std::uniform_int_distribution<int> dis(min, max);
+    return dis(gen);
+}
+
+void Program::DrawCircleWaves(float radius, int num, float scale){
+    const float step =  2 * (float)M_PI / (float)num;
+    float degrees = 0;
+
+    float posX = 0.0f;
+    float posY = 0.0f;
+    float posZ = 0.0f;
+
+    Vec3 rotationAxis = vec3_create(0.0f, 0.0f, 1.0f);
+    
+    for(int i = 0; i < num; i++){
+        posX = cos(degrees) * radius;
+        posY = sin(degrees) * radius;
+    
+        for(int j = 0; j < 2; j++){
+            float speed = static_cast<float>(random_int(-60, 60));
+            posZ = (0.5f * scale) + ((float)j * scale);
+            Vec3 pos = vec3_create(posX, posY, posZ);
+
+            auto cube = std::make_unique<Cube>(pos);
+
+            if(j > 0){
+                cube->setRotationAxis(rotationAxis);
+                cube->setRotationSpeed(speed);
+            }
+            
+            cube->setScale(scale);
+            m_objects.push_back(std::move(cube));
+        }
+        
+        degrees += step;
+    }
+}
+
+void Program::ToggleState(){
+    switch (m_state) {
+    case ProgramState::UPDATING:
+        m_state = ProgramState::PAUSED;
+        break;
+    case ProgramState::PAUSED:
+        m_state = ProgramState::UPDATING;
+        break;
+    default:
+        break;
     }
 }

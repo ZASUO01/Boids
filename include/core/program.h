@@ -21,6 +21,11 @@ enum class CameraMode {
     FOLLOW_PLAYER
 };
 
+enum class ProgramState {
+    UPDATING,
+    PAUSED
+};
+
 class Program {
 public:
     Program();
@@ -34,6 +39,8 @@ public:
     static const int WINDOW_HEIGHT = 768;
     static const int MAX_TITLE_LENGTH = 256;
     static constexpr double FPS_UPDATE_INTERVAL = 1.0;
+
+    void ToggleState();
 
 private:
     GLFWwindow *m_window;
@@ -57,10 +64,15 @@ private:
     void Update();
     void Render();
 
+    void SpawnObstacles();
+    void DrawCircleWaves(float radius, int num, float scale);
+
     static void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
     static void MouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
 
     void setNameWithFPS(double currentTime);
 
     friend class InputHandler;
+
+    ProgramState m_state;
 };
