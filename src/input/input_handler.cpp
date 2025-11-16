@@ -1,6 +1,13 @@
 #include "input/input_handler.h"
 #include "core/program.h"
 
+static int random_int(int min, int max) {
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    std::uniform_int_distribution<int> dis(min, max);
+    return dis(gen);
+}
+
 InputHandler::InputHandler() {}
 
 float InputHandler::random_float(float min, float max) {
@@ -10,24 +17,50 @@ float InputHandler::random_float(float min, float max) {
     return dis(gen);
 }
 
-void InputHandler::SpawnBoid(Program *program) {
+void InputHandler::SpawnBoid(Program* program) {
 
-    float randX = random_float(-50.0f, 50.0f);
-    float randY = random_float(-50.0f, 50.0f);
-    Vec3 pos = vec3_create(randX, randY, 5.0f);
+    if (program->m_playerBoid == nullptr) {
+        Vec3 pos = vec3_create(0.0f, 0.0f, 5.0f);
+        auto boid_fallback = std::make_unique<Boid>(pos);
+        program->m_objects.push_back(std::move(boid_fallback));
+        return;
+    }
 
+    Vec3 player_pos = program->m_playerBoid->getPosition();
+    
+    float spawn_radius = 5.0f; 
+    float randX = random_float(-spawn_radius, spawn_radius);
+    float randY = random_float(-spawn_radius, spawn_radius);
+    float randZ = random_float(-2.0f, 2.0f);
+
+    Vec3 pos = vec3_add(player_pos, vec3_create(randX, randY, randZ));
     auto boid = std::make_unique<Boid>(pos);
+
+    boid->setForward(program->m_playerBoid->getForward()); 
     program->m_objects.push_back(std::move(boid));
 }
 
+
 void InputHandler::RemoveBoid(Program *program) {
 
-    for (auto it = program->m_objects.rbegin(); it != program->m_objects.rend(); ++it) {
-        if (dynamic_cast<Boid *>(it->get()) != nullptr) {
-            program->m_objects.erase(std::next(it).base());
-            break;
+    std::vector<std::vector<std::unique_ptr<Object>>::iterator> targets;
+    
+    for (auto it = program->m_objects.begin(); it != program->m_objects.end(); ++it) {
+    
+        Boid* boid_ptr = dynamic_cast<Boid*>(it->get());
+        if (boid_ptr != nullptr && boid_ptr != program->m_playerBoid) {
+            targets.push_back(it);
         }
     }
+
+    if (targets.empty()) {
+        return;
+    }
+
+    int random_index = random_int(0, static_cast<int>(targets.size() - 1));
+    
+    auto iterator_to_remove = targets[random_index];
+    program->m_objects.erase(iterator_to_remove);
 }
 
 void InputHandler::ProcessKey(Program *program, int key, int action) {
