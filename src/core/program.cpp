@@ -7,6 +7,7 @@ Program::Program()
       m_objects(),
       m_playerBoid(nullptr),
       m_isRunning(true),
+      m_fogEnabled(false),
       m_frameCount(0),
       m_lastFrameTime(0.0),
       m_lastFPSTime(0.0) {}
@@ -41,6 +42,13 @@ void Program::InitOpenGL() {
 
     glEnable(GL_COLOR_MATERIAL);
     glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+
+    GLfloat fogColor[4] = {0.0f, 0.0f, 0.2f, 1.0f};
+    
+    glFogi(GL_FOG_MODE, GL_LINEAR);
+    glFogfv(GL_FOG_COLOR, fogColor); 
+    glFogf(GL_FOG_START, 20.0f);
+    glFogf(GL_FOG_END, 80.0f);
 
     glEnable(GL_NORMALIZE);
 }
@@ -91,7 +99,6 @@ void Program::Init(const char *name) {
     InitInput();
     SetupScene();
     InitTimers();
-    printf("Versão do GLFW: %s\n", glfwGetVersionString());
 }
 
 void Program::RunLoop() {
@@ -154,6 +161,12 @@ void Program::Render() {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
+    if (m_fogEnabled) {
+        glEnable(GL_FOG);
+    } else {
+        glDisable(GL_FOG);
+    }
+
     m_camera.setupViewMatrix();
 
     GLfloat light_position[] = {1.0f, 1.0f, 1.0f, 0.0f};
@@ -179,6 +192,11 @@ void Program::PrintStats() const {
     printf("Window width: %d\n", Program::WINDOW_WIDTH);
     printf("Window height: %d\n", Program::WINDOW_HEIGHT);
     printf("OpenGL Version: %s\n", glGetString(GL_VERSION));
+    printf("GLFW Version: %s\n", glfwGetVersionString());
+}
+
+void Program::ToggleFog() {
+    m_fogEnabled = !m_fogEnabled;
 }
 
 void Program::KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
