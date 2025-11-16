@@ -53,7 +53,7 @@ void Program::InitInput() {
 
 void Program::SetupScene() {
     m_objects.push_back(std::make_unique<Ground>(vec3_create(0.0f, 0.0f, 0.0f)));
-    m_objects.push_back(std::make_unique<Tower>(vec3_create(0.0f, 0.0f, 1.0f)));
+    m_objects.push_back(std::make_unique<Tower>(vec3_create(0.0f, 0.0f, 0.0f)));
 
     const float scale = 7.0f;
     const float cubeY = -30.0f;
@@ -73,7 +73,9 @@ void Program::SetupScene() {
     }
 
     auto player = std::make_unique<Boid>(vec3_create(-10, -10, 5));
+    player->m_isPlayer = true;
     m_playerBoid = player.get();
+
     m_camera.setFollowTarget(m_playerBoid);
     m_objects.push_back(std::move(player));
 }
@@ -89,6 +91,7 @@ void Program::Init(const char *name) {
     InitInput();
     SetupScene();
     InitTimers();
+    printf("Versão do GLFW: %s\n", glfwGetVersionString());
 }
 
 void Program::RunLoop() {
@@ -129,7 +132,7 @@ void Program::Update() {
     m_inputHandler.ProcessContinuousInput(m_window, deltaTime, m_playerBoid);
 
     for (const auto &obj : m_objects) {
-        obj->update(deltaTime);
+        obj->update(deltaTime, m_objects, m_playerBoid);
     }
 
     m_lastFrameTime = currentTime;

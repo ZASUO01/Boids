@@ -1,7 +1,7 @@
 #include "objects/cube.h"
 #include <GL/glew.h>
 
-void Cube::update(float delta_time) {
+void Cube::update(float delta_time, const std::vector<std::unique_ptr<Object>>& all_objects, Object* player_boid) {
     m_rotation_angle += m_rotation_speed * delta_time;
     
     if (m_rotation_angle > 360.0f) {

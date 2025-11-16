@@ -2,6 +2,8 @@
 
 #include "utils/vmath.h"
 #include <GL/glew.h>
+#include <vector>
+#include <memory>
 
 #include <stdio.h>
 
@@ -70,7 +72,7 @@ public:
         glPopMatrix();
     }
 
-    virtual void update(float delta_time) {}
+    virtual void update(float delta_time, const std::vector<std::unique_ptr<Object>>& all_objects, Object* player_boid) {}
 
     virtual void accelerate(float direction, float delta_time) {}
 
@@ -92,6 +94,12 @@ public:
 
     Vec3 getVelocity() const {
         return vec3_scale(m_forward, m_speed);
+    }
+
+    void setForward(const Vec3& forward) {
+        m_forward = forward;
+        m_right = vec3_normalize(vec3_cross(m_forward, vec3_create(0,0,1)));
+        m_up = vec3_normalize(vec3_cross(m_right, m_forward));
     }
 
     void setRotationAxis(const Vec3 &axis) {
