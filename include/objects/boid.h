@@ -27,7 +27,7 @@ protected:
 
 private:
     static constexpr float MIN_SPEED = 2.0f;
-    static constexpr float MAX_SPEED = 20.0f;
+    static constexpr float MAX_SPEED = 30.0f;
 
     // Função auxiliar para desenhar uma pirâmide padrão
     void drawUnitPyramid() const;

@@ -53,7 +53,7 @@ void Program::InitInput() {
 
 void Program::SetupScene() {
     m_objects.push_back(std::make_unique<Ground>(vec3_create(0.0f, 0.0f, 0.0f)));
-    m_objects.push_back(std::make_unique<Tower>(vec3_create(0.0f, 0.0f, 1.0f)));
+    m_objects.push_back(std::make_unique<Tower>(vec3_create(0.0f, 0.0f, 0.0f)));
 
     const float scale = 7.0f;
     const float cubeY = -30.0f;
