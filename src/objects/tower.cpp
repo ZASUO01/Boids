@@ -12,7 +12,6 @@ Tower::Tower(Vec3 pos) : Object(pos) {
 
 void Tower::draw() const {
     float base_radius = 5.0f;
-    float height = 15.0f;
     int slices = 200;
     float z_pos = 0.0f;
 
@@ -33,7 +32,7 @@ void Tower::draw() const {
     glEnd();
 
     glBegin(GL_TRIANGLES);
-    Vec3 top = vec3_create(0.0f, 0.0f, z_pos + height);
+    Vec3 top = vec3_create(0.0f, 0.0f, z_pos + TOWER_HEIGHT);
 
     for (int i = 0; i < slices; i++) {
         float angle1 = (float)i * angle_step;

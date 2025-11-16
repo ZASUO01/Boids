@@ -83,6 +83,9 @@ void InputHandler::ProcessKey(Program *program, int key, int action) {
     case GLFW_KEY_C:
         program->m_camera.toggleMode();
         break;
+    case GLFW_KEY_P:
+        program->ToggleState();
+        break;
     default:
         break;
     }

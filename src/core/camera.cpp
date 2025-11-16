@@ -73,7 +73,7 @@ void Camera::setupStaticView(Vec3 &eye, Vec3 &target) const {
 }
 
 void Camera::setupTowerView(Vec3 &eye, const Vec3 &target) const {
-    eye = vec3_create(0.0f, 0.0f, 16.0f);
+    eye = vec3_create(0.0f, 0.0f, 1 + Tower::TOWER_HEIGHT);
 }
 
 void Camera::setupFollowView(Vec3 &eye, Vec3 &target) const {

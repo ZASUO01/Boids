@@ -5,6 +5,7 @@
 
 #include "objects/object.h"
 #include "utils/vmath.h"
+#include "objects/tower.h"
 
 enum class Mode {
     TOWER_TOP,          // Modo 1: No topo da torre
