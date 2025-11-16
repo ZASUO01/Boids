@@ -7,6 +7,7 @@ Program::Program()
       m_objects(),
       m_playerBoid(nullptr),
       m_isRunning(true),
+      m_fogEnabled(false),
       m_frameCount(0),
       m_lastFrameTime(0.0),
       m_lastFPSTime(0.0) {}
@@ -36,11 +37,18 @@ void Program::InitOpenGL() {
     glClearColor(0.0f, 0.0f, 0.2f, 1.0f);
 
     glEnable(GL_LIGHTING);
-    GLfloat global_ambient[] = {0.2f, 0.2f, 0.2f, 1.0f};
+    GLfloat global_ambient[] = {0.0f, 0.0f, 0.2f, 1.0f};
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
 
     glEnable(GL_COLOR_MATERIAL);
     glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+
+    GLfloat fogColor[4] = {0.0f, 0.0f, 0.2f, 1.0f};
+    
+    glFogi(GL_FOG_MODE, GL_EXP2);
+    glFogfv(GL_FOG_COLOR, fogColor); 
+    glFogf(GL_FOG_DENSITY, 0.01f);
+    glHint(GL_FOG_HINT, GL_NICEST);
 
     glEnable(GL_NORMALIZE);
 }
@@ -91,7 +99,6 @@ void Program::Init(const char *name) {
     InitInput();
     SetupScene();
     InitTimers();
-    printf("Versão do GLFW: %s\n", glfwGetVersionString());
 }
 
 void Program::RunLoop() {
@@ -137,7 +144,6 @@ void Program::Update() {
 
     m_lastFrameTime = currentTime;
 }
-
 void Program::Render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -146,16 +152,27 @@ void Program::Render() {
     if (width == 0 || height == 0)
         return;
 
+    // --- 1. PROJEÇÃO ---
     glViewport(0, 0, width, height);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluPerspective(75.0f, (float)width / (float)height, 0.1f, 500.0f);
 
+    // --- 2. CÂMERA (VIEW) ---
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+    m_camera.setupViewMatrix(); // Define o gluLookAt
 
-    m_camera.setupViewMatrix();
+    // --- 3. NÉVOA (FOG) ---
+    // (MOVIDO PARA DEPOIS DA CÂMERA)
+    if (m_fogEnabled) {
+        glEnable(GL_FOG);
+    } else {
+        glDisable(GL_FOG);
+    }
 
+    // --- 4. LUZES ---
+    // (DEVE VIR DEPOIS DA CÂMERA, PARA FICAR NO "WORLD SPACE")
     GLfloat light_position[] = {1.0f, 1.0f, 1.0f, 0.0f};
     GLfloat light_diffuse[] = {1.0f, 1.0f, 1.0f, 1.0f};
 
@@ -163,13 +180,13 @@ void Program::Render() {
     glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
     glEnable(GL_LIGHT0);
 
+    // --- 5. OBJETOS ---
     for (const auto &obj : m_objects) {
         obj->render();
     }
 
     glfwSwapBuffers(m_window);
 }
-
 void Program::Shutdown() {
     glfwDestroyWindow(m_window);
     glfwTerminate();
@@ -179,6 +196,11 @@ void Program::PrintStats() const {
     printf("Window width: %d\n", Program::WINDOW_WIDTH);
     printf("Window height: %d\n", Program::WINDOW_HEIGHT);
     printf("OpenGL Version: %s\n", glGetString(GL_VERSION));
+    printf("GLFW Version: %s\n", glfwGetVersionString());
+}
+
+void Program::ToggleFog() {
+    m_fogEnabled = !m_fogEnabled;
 }
 
 void Program::KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
