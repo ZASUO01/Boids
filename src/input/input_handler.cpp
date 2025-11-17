@@ -84,6 +84,7 @@ void InputHandler::ProcessKey(Program *program, int key, int action) {
         break;
     case GLFW_KEY_P:
         program->ToggleState();
+        break;
     case GLFW_KEY_F:
         program->ToggleFog();
         break;

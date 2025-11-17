@@ -38,7 +38,7 @@ void Program::InitOpenGL() {
     glClearColor(0.0f, 0.0f, 0.2f, 1.0f);
 
     glEnable(GL_LIGHTING);
-    GLfloat global_ambient[] = {0.0f, 0.0f, 0.2f, 1.0f};
+    GLfloat global_ambient[] = {0.2f, 0.2f, 0.2f, 1.0f};
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
 
     glEnable(GL_COLOR_MATERIAL);
