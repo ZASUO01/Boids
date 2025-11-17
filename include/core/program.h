@@ -34,6 +34,7 @@ public:
     void RunLoop();
 
     void PrintStats() const;
+    void ToggleFog();
 
     static const int WINDOW_WIDTH = 1024;
     static const int WINDOW_HEIGHT = 768;
@@ -50,6 +51,7 @@ private:
 
     Object *m_playerBoid;
     bool m_isRunning;
+    bool m_fogEnabled;
     int m_frameCount;
     double m_lastFrameTime;
     double m_lastFPSTime;
